@@ -1,0 +1,11 @@
+CREATE TABLE TASK_DB.application (
+  id INT NOT NULL AUTO_INCREMENT,
+  iin varchar(512) NOT NULL,
+  request_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  amount varchar(512),
+  contract_duration varchar(512),
+  contract_status varchar(512),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=INNODB;

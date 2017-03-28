@@ -1,0 +1,98 @@
+group 'org.gradle.azamat.bank'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'org.flywaydb.flyway'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+buildscript {
+	repositories {
+		mavenCentral()
+		mavenLocal()
+	}
+	dependencies {
+		classpath "org.flywaydb:flyway-gradle-plugin:3.2.1",
+				"mysql:mysql-connector-java:5.1.16",
+				"org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE"
+	}
+}
+
+ext {
+	javaLanguageLevel = '1.8'
+	generatedMapperSourcesDir = "${buildDir}/generated-src/mapstruct/main"
+}
+
+
+repositories {
+	mavenCentral()
+	maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+}
+
+dependencies {
+	compile('org.mapstruct:mapstruct:1.0.0.CR1')
+	compile('org.mapstruct:mapstruct-processor:1.0.0.CR1')
+	compile('org.springframework.boot:spring-boot-starter-web:1.2.5.RELEASE')
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('org.hibernate:hibernate-validator')
+	compile('mysql:mysql-connector-java:5.1.16')
+	compile("org.springframework.boot:spring-boot-starter-actuator")
+	compile("com.google.code.gson:gson:2.2.4")
+
+}
+
+flyway {
+	url = 'jdbc:mysql://localhost:3306/azamatTest'
+	user = 'root'
+	password =''
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.12'
+}
+
+sourceCompatibility = rootProject.javaLanguageLevel
+
+configurations {
+	mapstruct
+}
+
+sourceSets.main {
+	ext.originalJavaSrcDirs = java.srcDirs
+	java.srcDir "${generatedMapperSourcesDir}"
+}
+
+task generateMainMapperClasses(type: JavaCompile) {
+	//class output dir, required by JavaCompile
+	ext.aptDumpDir = file("${buildDir}/tmp/apt/mapstruct")
+	destinationDir = aptDumpDir
+
+	classpath = compileJava.classpath + configurations.mapstruct
+	source = sourceSets.main.originalJavaSrcDirs
+	ext.sourceDestDir = file("$generatedMapperSourcesDir")
+
+	options.define(
+			compilerArgs: [
+					"-nowarn",
+					"-proc:only",
+					"-encoding", "UTF-8",
+					"-processor", "org.mapstruct.ap.MappingProcessor",
+					"-s", sourceDestDir.absolutePath,
+					"-source", rootProject.javaLanguageLevel,
+					"-target", rootProject.javaLanguageLevel,
+			]
+	);
+
+	inputs.dir source
+	outputs.dir generatedMapperSourcesDir;
+	doFirst {
+		sourceDestDir.mkdirs()
+	}
+	doLast {
+		aptDumpDir.delete()
+	}
+}
+
+compileJava.dependsOn generateMainMapperClasses
+compileJava.options.define(compilerArgs: ["-proc:none", "-encoding", "UTF-8"])
+compileTestJava.options.define(compilerArgs: ["-proc:none", "-encoding", "UTF-8"])

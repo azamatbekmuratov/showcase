@@ -1,0 +1,14 @@
+CREATE TABLE TASK_DB.credit (
+  id INT NOT NULL AUTO_INCREMENT,
+  iin varchar(255) NOT NULL,
+  amount varchar(512) NOT NULL,
+  contract_duration varchar(512) NOT NULL,
+  rate varchar(255) NOT NULL,
+  monthly_amount varchar(512) NOT NULL,
+  amount_in_usd varchar(512) NOT NULL,
+  total_amount_payments varchar(512) NOT NULL,
+  over_payment varchar(512) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=INNODB;
